@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 Route::get('students', 'StudentController@index');
-Route::get('students/{id}', 'StudentController@getStudent');
+Route::get('students/{id}', 'StudentController@show');
 Route::post('students', 'StudentController@create');
-Route::put('students/{id}', 'StudentController@updateStudent');
+Route::put('students/{id}', 'StudentController@update');
 Route::delete('students/{id}','StudentController@destroy');
 
 

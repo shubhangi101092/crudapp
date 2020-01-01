@@ -57,22 +57,21 @@ class StudentController extends Controller
             ], 422);
 
         }
-        // print_r($request->file('others')); exit;
-         print_r($request->others); exit;
-        //  $files = $request->file('others');
-        // print_r($files); exit;
-// foreach ($files as $one) {
-//  echo  $filename = $one->getClientOriginalName(); exit;
-//    $listfilenames[] = $filename;
-//                 }
-// print_r($listfilenames); exit;
-       $studnets= Student::create($request->all());
-       
+      
+    
+      $studnets= Student::create($request->all());
+       if($request->birth_certificate){
+
+foreach($request->file('birth_certificate') as $file){
+
+    print_r($file); 
+}
         $studnets->documents()->save(new Document([
          'students_id'=>$studnets->id,
          'type'=>'birth_certificate',
-         'file_path'=>'dkmsfd'
+         'file_path'=>''
         ]));
+       }
         return response()->json([
             "message" => "student registered successfully"
         ], 201);
@@ -82,16 +81,7 @@ class StudentController extends Controller
         ], 404);
     }    
     }
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+ 
 
     /**
      * Display the specified resource.
@@ -101,18 +91,17 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        $student = Student::find($id);
+        if($student){
+            $student->delete();
+            return response()->json([
+                "data" => $student,
+                "message" => "Record found."
+              ], 202);
+        }
+         return response()->json([
+            "message"=>"No record found.",
+        ], 404);
     }
 
     /**
@@ -124,7 +113,37 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $student = Student::find($id);
+        if($student){
+        $validator = Validator::make($request->all() , [
+
+            'first_name' => 'required|string',
+            'last_name' => 'string',
+            'mobile_number' => 'integer',
+            'course' => 'required|string',
+            'parent_name' => 'string',
+            'standard' => 'string'
+        ]);
+        $input = $request->all();
+        $student->update([
+            'first_name'=> $input->first_name,
+            'last_name' => $input->last_name,
+            'mobile_number' => $input->mobile_number,
+            'course' => $input->course,
+            'parent_name' => $input->parent_name,
+            'standard'=> $input->standard
+        ]);
+        $student->documents()->update([
+            'type'=>'birth_certificate',
+            'file_path'=>'ytyrytty'
+           ]);
+        return response()->json([
+            "message" => "record updated"
+          ], 202);
+        }
+        return response()->json([
+            "message"=>"Failed to update",
+        ], 404);
     }
 
     /**
@@ -135,17 +154,15 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-       // if(Student::where('id', $id)->exists()) {
         $student = Student::find($id);
-        //$student->delete();
-
-        return response()->json([
-          "message" => "records deleted"
-        ], 202);
-    //   } else {
-    //     return response()->json([
-    //       "message" => "Student not found"
-    //     ], 404);
-    //   }
+        if($student){
+            $student->delete();
+            return response()->json([
+                "message" => "record deleted"
+              ], 202);
+        }
+         return response()->json([
+            "message"=>"Failed to delete",
+        ], 404);
     }
 }
