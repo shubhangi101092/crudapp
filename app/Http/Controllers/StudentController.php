@@ -45,7 +45,8 @@ class StudentController extends Controller
             'email' => 'required|email|unique:students',
             'mobile_number' => 'integer',
             'course' => 'required|string',
-            'parent_name' => 'string'
+            'parent_name' => 'string',
+            'birth_certificate'=>'required|mimes:jpeg,png,jpg,gif,pdf,docx,odt,doc,txt,svg|max:2048',
         ]);
 
 
@@ -60,17 +61,30 @@ class StudentController extends Controller
       
     
       $studnets= Student::create($request->all());
-       if($request->birth_certificate){
+      if($file = $request->hasFile('others')) {
+foreach($request->file('others') as $file){
+    $fileName = $file->getClientOriginalName() .'_'.time();
+    $destinationPath = public_path().'/images/' ;
+    $file->move($destinationPath,$fileName);
 
-foreach($request->file('birth_certificate') as $file){
-
-    print_r($file); 
-}
         $studnets->documents()->save(new Document([
          'students_id'=>$studnets->id,
-         'type'=>'birth_certificate',
-         'file_path'=>''
+         'type'=>'other',
+         'file_path'=>$fileName
         ]));
+}
+       }
+       if($request->hasFile('birth_certificate')) {
+        $file=$request->file('birth_certificate');
+       $fileName = $file->getClientOriginalName() .'_'.time(); 
+        $destinationPath = public_path().'/images/' ;
+        $file->move($destinationPath,$fileName);
+    
+            $studnets->documents()->save(new Document([
+             'students_id'=>$studnets->id,
+             'type'=>'birth_certificate',
+             'file_path'=>$fileName
+            ]));
        }
         return response()->json([
             "message" => "student registered successfully"
@@ -122,7 +136,8 @@ foreach($request->file('birth_certificate') as $file){
             'mobile_number' => 'integer',
             'course' => 'required|string',
             'parent_name' => 'string',
-            'standard' => 'string'
+            'standard' => 'string',
+            'birth_certificate'=>'required|mimes:jpeg,png,jpg,gif,pdf,docx,odt,doc,txt,svg|max:2048',
         ]);
         $input = $request->all();
         $student->update([
@@ -133,10 +148,31 @@ foreach($request->file('birth_certificate') as $file){
             'parent_name' => $input->parent_name,
             'standard'=> $input->standard
         ]);
-        $student->documents()->update([
-            'type'=>'birth_certificate',
-            'file_path'=>'ytyrytty'
-           ]);
+
+        if($file = $request->hasFile('others')) {
+            foreach($request->file('others') as $file){
+                $fileName = $file->getClientOriginalName() ;
+                $destinationPath = public_path().'/images/' ;
+                $file->move($destinationPath,$fileName);
+            
+                    $studnets->documents()->update([
+                     'students_id'=>$studnets->id,
+                     'type'=>'other',
+                     'file_path'=>$fileName
+                    ]);
+            }
+                   }
+                   if($file = $request->hasFile('birth_certificate')) {
+                    $fileName = $file->getClientOriginalName() ;
+                    $destinationPath = public_path().'/images/' ;
+                    $file->move($destinationPath,$fileName);
+                
+                        $studnets->documents()->update([
+                         'students_id'=>$studnets->id,
+                         'type'=>'birth_certificate',
+                         'file_path'=>$fileName
+                        ]);
+                   }
         return response()->json([
             "message" => "record updated"
           ], 202);
