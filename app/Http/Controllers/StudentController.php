@@ -162,7 +162,8 @@ foreach($request->file('others') as $file){
                     ]);
             }
                    }
-                   if($file = $request->hasFile('birth_certificate')) {
+                   if($request->hasFile('birth_certificate')) {
+                    $file = $request->file('birth_certificate');
                     $fileName = $file->getClientOriginalName() ;
                     $destinationPath = public_path().'/images/' ;
                     $file->move($destinationPath,$fileName);
