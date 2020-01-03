@@ -9,24 +9,15 @@ use Illuminate\Http\Request;
 class StudentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource or specified resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($id = '')
     {
-      if(!empty(Student::all())){
-        return response()->json([
-            "students"=>Student::all()->toArray(),
-            "message" => "All students record."
-        ], 201);
-      }else{
-        return response()->json([
-            "message" => "No record found."
-        ], 201);
-      }
-        
-       
+      
+        return(new \App\Student())->getStudent($id);
+
     }
 
     /**
@@ -96,7 +87,6 @@ foreach($request->file('others') as $file){
     }    
     }
  
-
     /**
      * Display the specified resource.
      *
@@ -117,7 +107,6 @@ foreach($request->file('others') as $file){
             "message"=>"No record found.",
         ], 404);
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -127,6 +116,8 @@ foreach($request->file('others') as $file){
      */
     public function update(Request $request, $id)
     {
+
+        
         $student = Student::find($id);
         if($student){
         $validator = Validator::make($request->all() , [
@@ -191,15 +182,7 @@ foreach($request->file('others') as $file){
      */
     public function destroy($id)
     {
-        $student = Student::find($id);
-        if($student){
-            $student->delete();
-            return response()->json([
-                "message" => "record deleted"
-              ], 202);
-        }
-         return response()->json([
-            "message"=>"Failed to delete",
-        ], 404);
+        return (new \App\Student())->destroyStudent($id);
+       
     }
 }
